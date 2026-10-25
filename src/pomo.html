@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="so">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Pomodoro Timer</title>
+    <style>
+        :root {
+            --bg: #f6f4ef;
+            --card: #fff;
+            --text: #1f2328;
+            --muted: #6b7280;
+            --accent: #e5484d;
+            --track: #ececec;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px)
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #15171a;
+                --card: #1f2226;
+                --text: #f1f1f1;
+                --muted: #9ca3af;
+                --accent: #ff6369;
+                --track: #33373d
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #15171a;
+            --card: #1f2226;
+            --text: #f1f1f1;
+            --muted: #9ca3af;
+            --accent: #ff6369;
+            --track: #33373d
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 28px;
+            width: min(92vw, 380px);
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .08)
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            background: var(--track);
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 24px
+        }
+
+        .tabs button {
+            flex: 1;
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            padding: 8px 4px;
+            border-radius: 9px;
+            font-size: 14px;
+            cursor: pointer
+        }
+
+        .tabs button.on {
+            background: var(--card);
+            color: var(--text);
+            font-weight: 600
+        }
+
+        .ring {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 0 auto 24px
+        }
+
+        svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%
+        }
+
+        circle {
+            fill: none;
+            stroke-width: 10
+        }
+
+        .t {
+            stroke: var(--track)
+        }
+
+        .p {
+            stroke: var(--accent);
+            stroke-linecap: round;
+            transition: stroke-dashoffset .4s linear
+        }
+
+        .time {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center
+        }
+
+        .time b {
+            font-size: 54px;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -1px
+        }
+
+        .time span {
+            color: var(--muted);
+            font-size: 14px
+        }
+
+        .ctl {
+            display: flex;
+            gap: 10px
+        }
+
+        .ctl button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            border: 0;
+            font-size: 16px;
+            cursor: pointer
+        }
+
+        #go {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600
+        }
+
+        #reset {
+            background: var(--track);
+            color: var(--text)
+        }
+
+        .count {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 14px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="tabs" id="tabs">
+            <button data-m="25" class="on">Diiradda</button>
+            <button data-m="1">Nasasho gaaban</button>
+            <button data-m="15">Nasasho dheer</button>
+        </div>
+        <div class="ring">
+            <svg viewBox="0 0 100 100">
+                <circle class="t" cx="50" cy="50" r="45" />
+                <circle class="p" id="p" cx="50" cy="50" r="45" />
+            </svg>
+            <div class="time"><b id="time">25:00</b><span id="label">Diiradda</span></div>
+        </div>
+        <div class="ctl"><button id="go">Bilow</button><button id="reset">Dib u deji</button></div>
+        <div class="count">Wareegyada dhammaaday: <b id="n">0</b></div>
+    </div>
+    <script>
+        const C = 2 * Math.PI * 45, ring = document.getElementById('p');
+        ring.style.strokeDasharray = C;
+        let total = 25 * 60, left = total, end = 0, timer = null, done = 0, label = 'Diiradda';
+        const $ = id => document.getElementById(id);
+        function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0') }
+        function draw() {
+            $('time').textContent = fmt(left);
+            ring.style.strokeDashoffset = C * (1 - left / total);
+            document.title = fmt(left) + ' · ' + label;
+        }
+        function beep() {
+            try {
+                const a = new (window.AudioContext || window.webkitAudioContext)();
+                [0, 0.3, 0.6].forEach(t => {
+                    const o = a.createOscillator(), g = a.createGain();
+                    o.connect(g); g.connect(a.destination); o.frequency.value = 880; g.gain.value = 0.15;
+                    o.start(a.currentTime + t); o.stop(a.currentTime + t + 0.2)
+                });
+            } catch (e) { }
+        }
+        function stop() { clearInterval(timer); timer = null; $('go').textContent = 'Bilow' }
+        function tick() {
+            left = Math.max(0, Math.round((end - Date.now()) / 1000));
+            draw();
+            if (left === 0) {
+                stop(); beep();
+                if (label === 'Diiradda') { done++; $('n').textContent = done }
+            }
+        }
+        $('go').onclick = () => {
+            if (timer) { stop(); return }
+            if (left === 0) left = total;
+            end = Date.now() + left * 1000;
+            timer = setInterval(tick, 250);
+            $('go').textContent = 'Jooji';
+        };
+        $('reset').onclick = () => { stop(); left = total; draw() };
+        $('tabs').onclick = e => {
+            const b = e.target.closest('button'); if (!b) return;
+            document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('on'));
+            b.classList.add('on');
+            stop(); total = left = Number(b.dataset.m) * 60; label = b.textContent;
+            $('label').textContent = label; draw();
+        };
+        draw();
+    </script>
+</body>
+
+</html>

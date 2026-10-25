@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #101827;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background: #1e293b;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px #0005;
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        #password {
+            width: 100%;
+            padding: 15px 10px;
+            margin-bottom: 20px;
+            background: #0f172a;
+            color: #38bdf8;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .generate {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .generate:hover {
+            background: #6d28d9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Password Generator</h2>
+
+        <input
+            type="text"
+            id="password"
+            placeholder="Your password"
+            readonly
+        >
+
+        <button class="generate" onclick="generatePassword()">
+            Generate Password
+        </button>
+    </div>
+
+    <script>
+        function generatePassword() {
+            const length = 8;
+            const characters =
+                "mohamud20#$@" +
+                "abcdefghijklmnopqrstuvwxyz" +
+                "0123456789!@#$%^&*";
+
+            const max = Math.floor(4294967296 / characters.length)
+                * characters.length;
+
+            let password = "";
+            const randomValues = new Uint32Array(1);
+
+            for (let i = 0; i < length; i++) {
+                let number;
+
+                do {
+                    crypto.getRandomValues(randomValues);
+                    number = randomValues[0];
+                } while (number >= max);
+
+                password += characters[number % characters.length];
+            }
+
+            document.getElementById("password").value = password;
+        }
+
+        generatePassword();
+    </script>
+
+</body>
+</html>

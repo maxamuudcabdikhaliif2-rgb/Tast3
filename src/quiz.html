@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .quiz-container {
+            width: 100%;
+            max-width: 550px;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px #0003;
+        }
+
+        h1 {
+            text-align: center;
+            color: #5542b8;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .top-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #7056d9;
+            transition: width 0.3s;
+        }
+
+        #question {
+            font-size: 21px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        .answer-btn {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 12px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+            background: #f7f7fc;
+            border: 2px solid #e5e5f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #7056d9;
+            background: #f0edff;
+        }
+
+        .answer-btn.correct {
+            background: #d8f8e2;
+            border-color: #20a454;
+            color: #16743a;
+        }
+
+        .answer-btn.wrong {
+            background: #ffe0e0;
+            border-color: #e54848;
+            color: #b42323;
+        }
+
+        .answer-btn:disabled {
+            cursor: default;
+        }
+
+        #feedback {
+            margin: 10px 0 18px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 14px;
+            color: white;
+            background: #7056d9;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .main-btn:hover {
+            background: #5542b8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #result {
+            text-align: center;
+        }
+
+        #result h2 {
+            margin-bottom: 15px;
+            color: #46b842;
+        }
+
+        #result p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .quiz-container {
+                padding: 22px 18px;
+            }
+
+            #question {
+                font-size: 19px;
+            }
+
+            .answer-btn {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="quiz-container">
+
+        <div id="quiz">
+            <h1>Quiz App</h1>
+            <p class="subtitle">Test your knowledge!</p>
+
+            <div class="top-info">
+                <span id="question-count">Question 1 of 5</span>
+                <span id="score">Score: 0</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+
+            <h2 id="question">Question goes here</h2>
+
+            <div id="answers"></div>
+
+            <p id="feedback"></p>
+
+            <button class="main-btn hidden" id="next-btn">
+                Next Question 
+            </button>
+        </div>
+
+        <div id="result" class="hidden">
+            <h1>Quiz Completed!</h1>
+            <h2 id="result-emoji"></h2>
+            <p id="result-text"></p>
+            <button class="main-btn" id="restart-btn">
+                Try Again 
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Quiz questions
+        const questions = [
+            {
+                question: "What does HTML stand for?",
+                answers: [
+                    "Hyper Text Markup Language",
+                    "High Text Machine Language",
+                    "Hyperlinks Text Management Language",
+                    "Home Tool Markup Language"
+                ],
+                correct:  0 
+            },
+            {
+                question: "Which language is used to style a website?",
+                answers: ["HTML", "CSS", "JavaScript", "Python"],
+                correct: 1
+            },
+            {
+                question: "Which language makes a website interactive?",
+                answers: ["CSS", "HTML", "JavaScript", "SQL"],
+                correct: 2
+            },
+            {
+                question: "Which HTML tag creates a link?",
+                answers: ["<p>", "<img>", "<div>", "<a>"],
+                correct: 3
+            },
+            {
+                question: "Naa naysta mohamud abdikhalid waa",
+                answers: [
+                    "j",
+                    "macalinka",
+                    "shiine",
+                    "midna"
+                ],
+                correct: 2
+            }
+             
+             
+        ];
+
+        // 2. Select HTML elements
+        const questionElement = document.getElementById("question");
+        const answersElement = document.getElementById("answers");
+        const countElement = document.getElementById("question-count");
+        const scoreElement = document.getElementById("score");
+        const progressElement = document.getElementById("progress");
+        const feedbackElement = document.getElementById("feedback");
+        const nextButton = document.getElementById("next-btn");
+        const quizElement = document.getElementById("quiz");
+        const resultElement = document.getElementById("result");
+
+        // 3. Quiz variables
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        // 4. Display a question
+        function showQuestion() {
+            answered = false;
+
+            const q = questions[currentQuestion];
+
+            questionElement.textContent = q.question;
+            countElement.textContent =
+                `Question ${currentQuestion + 1} of ${questions.length}`;
+
+            scoreElement.textContent = `Score: ${score}`;
+
+            progressElement.style.width =
+                `${(currentQuestion / questions.length) * 100}%`;
+
+            answersElement.innerHTML = "";
+            feedbackElement.textContent = "";
+            nextButton.classList.add("hidden");
+
+            q.answers.forEach((answer, index) => {
+                const button = document.createElement("button");
+
+                button.className = "answer-btn";
+                button.textContent =
+                    `${String.fromCharCode(65 + index)}. ${answer}`;
+
+                button.addEventListener("click", () => {
+                    checkAnswer(index, button);
+                });
+
+                answersElement.appendChild(button);
+            });
+        }
+
+        // 5. Check the selected answer
+        function checkAnswer(selected, selectedButton) {
+            if (answered) return;
+
+            answered = true;
+
+            const correctAnswer = questions[currentQuestion].correct;
+            const buttons = answersElement.querySelectorAll(".answer-btn");
+
+            buttons.forEach((button, index) => {
+                button.disabled = true;
+
+                if (index === correctAnswer) {
+                    button.classList.add("correct");
+                }
+            });
+
+            if (selected === correctAnswer) {
+                score++;
+                feedbackElement.textContent = "Correct! ";
+                feedbackElement.style.color = "#16803d";
+            } else {
+                selectedButton.classList.add("wrong");
+                feedbackElement.textContent = "Wrong answer! Try the next one.";
+                feedbackElement.style.color = "#d32f2f";
+            }
+
+            scoreElement.textContent = `Score: ${score}`;
+            progressElement.style.width =
+                `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+            nextButton.textContent =
+                currentQuestion === questions.length - 1
+                    ? "See Results"
+                    : "Next Question ";
+
+            nextButton.classList.remove("hidden");
+        }
+
+        // 6. Move to the next question
+        nextButton.addEventListener("click", () => {
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        });
+
+        // 7. Show final score
+        function showResult() {
+            quizElement.classList.add("hidden");
+            resultElement.classList.remove("hidden");
+
+            const percentage = Math.round(
+                (score / questions.length) * 100
+            );
+
+            document.getElementById("result-emoji").textContent =
+                percentage >= 100 ? "Basay" :
+                percentage >= 50 ? "Liita" : "haray";
+
+            document.getElementById("result-text").textContent =
+                `You scored ${score} out of ${questions.length} (${percentage}%).`;
+        }
+
+        // 8. Restart the quiz
+        document.getElementById("restart-btn").addEventListener("click", () => {
+            currentQuestion = 0; 
+            score = 0;
+
+            resultElement.classList.add("hidden");
+            quizElement.classList.remove("hidden");
+
+            showQuestion();
+        });
+
+        // Start the quiz
+        showQuestion();
+    </script>
+
+</body>
+</html>

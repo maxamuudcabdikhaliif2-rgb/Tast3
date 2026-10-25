@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./nav.css">
+</head>
+
+<body>
+    <nav class="site-nav" id="siteNav">
+        <a href="./quiz.html"> quiz</a>
+        <a href="./pomo.html ">pomo</a>
+        <a href="./pass.html ">pass</a>
+        <a href="./evc.html">evc</a>
+
+    </nav>
+    <!-- evc -->
+     <div class="container">
+
+    <!-- Bilowga -->
+    <section id="start">
+        <h2>EVC Plus</h2>
+        <p>Geli lambarka adeegga</p>
+        <input id="evc" type="text" placeholder="*770#">
+        <button class="main-btn" onclick="checkCode()">Continue</button>
+        <p id="startMsg"></p>
+    </section>
+
+    <!-- PIN -->
+    <section id="pinSection" class="hidden">
+        <h2>PIN Code</h2>
+        <p>Geli PIN-kaaga</p>
+        <input id="pin" type="password" inputmode="numeric"
+               placeholder="0000">
+        <button class="main-btn" onclick="login()">Login</button>
+        <p id="pinMsg"></p>
+    </section>
+
+    <!-- Menu -->
+    <section id="menuSection" class="hidden">
+        <h2>    EVC Plus</h2>
+        <p>Dooro adeegga aad rabto:</p>
+
+        <div class="menu" id="menu"></div>
+    </section>
+
+    <!-- Adeegga la doortay -->
+    <section id="serviceSection" class="hidden">
+        <h2 id="serviceTitle"></h2>
+        <div id="serviceContent"></div>
+        <div id="result" aria-live="polite"></div>
+        <div class="actions">
+            <button class="back" onclick="showMenu()">Dib u noqo</button>
+        </div>
+    </section>
+</div>
+
+</body>
+ <script src="./nav.js"></script>
+
+</html>
