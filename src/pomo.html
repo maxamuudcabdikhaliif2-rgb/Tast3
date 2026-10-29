@@ -190,7 +190,7 @@
         const C = 2 * Math.PI * 45, ring = document.getElementById('p');
         ring.style.strokeDasharray = C;
         let total = 25 * 60, left = total, end = 0, timer = null, done = 0, label = 'Diiradda';
-        const $ = id => document.getElementById(id);
+        const $ = id => document.getElementById(id);  
         function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0') }
         function draw() {
             $('time').textContent = fmt(left);
